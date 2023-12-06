@@ -33,6 +33,31 @@ function ITEM:DrawInfo()
 end
 
 if CLIENT then
+	function ITEM:AddToSettingsMenu(parent)
+		local form = vgui.CreateTTT2Form(parent, "header_equipment_additional")
+
+		form:MakeSlider({
+			label = "label_cloaking_device_duration",
+			serverConvar = "ttt_cloaking_device_duration",
+			min = 0,
+			max = 50,
+			decimal = 0
+		})
+
+		form:MakeSlider({
+			label = "label_cloaking_device_cooldown",
+			serverConvar = "ttt_cloaking_device_cooldown",
+			min = 0,
+			max = 50,
+			decimal = 0
+		})
+
+		form:MakeCheckBox({
+			label = "label_cloaking_device_allow_shoot",
+			serverConvar = "ttt_cloaking_device_allow_shoot"
+		})
+	end
+
 	bind.Register("cloakingdevice", function()
 		net.Start("cloakingdevice_toggle")
 		net.SendToServer()

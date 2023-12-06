@@ -2,9 +2,9 @@ if SERVER then
 	util.AddNetworkString("ToggleCloakingDevice_toggle")
 end
 
-local cvDuration = CreateConVar("ttt_ToggleCloakingDevice_duration", 20, {FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_NOTIFY}, "How long should you be invisible?")
-local cvCooldown = CreateConVar("ttt_ToggleCloakingDevice_cooldown", 30, {FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_NOTIFY}, "How long should you be the cooldown?")
-local cvAllowShoot = CreateConVar("ttt_ToggleCloakingDevice_allowShoot", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_NOTIFY}, "Should the player be allowed to shoot when cloaked?")
+local cvDuration = CreateConVar("ttt_cloaking_device_duration", 20, {FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_NOTIFY}, "How long should you be invisible?")
+local cvCooldown = CreateConVar("ttt_cloaking_device_cooldown", 30, {FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_NOTIFY}, "How long should you be the cooldown?")
+local cvAllowShoot = CreateConVar("ttt_cloaking_device_allow_shoot", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_NOTIFY}, "Should the player be allowed to shoot when cloaked?")
 
 if SERVER then
 	local plymeta = FindMetaTable("Player")

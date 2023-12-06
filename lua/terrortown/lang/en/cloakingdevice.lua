@@ -12,3 +12,7 @@ L["item_cloaking_hud_msg_enabled"] = "You are now invisible!"
 L["item_cloaking_hud_msg_disabled"] = "You are visible again!"
 L["item_cloaking_hud_msg_error"] = "Your Cloaking Device isn't ready yet!"
 L["item_cloaking_hud_msg_ready"] = "Your Cloaking Device is ready again!"
+
+L["label_cloaking_device_duration"] = "Duration the player can be invisible"
+L["label_cloaking_device_cooldown"] = "Duration of the cooldown after being invisible"
+L["label_cloaking_device_allow_shoot"] = "Allow weapon use while being invisible"
