@@ -1,5 +1,5 @@
 if SERVER then
-	util.AddNetworkString("ToggleCloakingDevice_toggle")
+	util.AddNetworkString("cloakingdevice_toggle")
 end
 
 local cvDuration = CreateConVar("ttt_cloaking_device_duration", 20, {FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_NOTIFY}, "How long should you be invisible?")
@@ -10,7 +10,9 @@ if SERVER then
 	local plymeta = FindMetaTable("Player")
 
 	function plymeta:ToggleCloakingDevice()
-		if not self:HasEquipmentItem("item_ttt_ToggleCloakingDevicepassive") then return end
+		if not self:HasEquipmentItem("item_ttt_cloakingdevicepassive") then return end
+
+		print("has item")
 
 		if self.cloaked then
 			self:UnCloak()
@@ -21,9 +23,9 @@ if SERVER then
 
 	-- makes the player invisible if the Cloaking Device is ready
 	function plymeta:Cloak()
-		if self:GetNWBool("ToggleCloakingDeviceready", false) then
+		if self:GetNWBool("cloakingdeviceready", false) then
 			self.cloaked = true
-			self:SetNWBool("ToggleCloakingDeviceready", false)
+			self:SetNWBool("cloakingdeviceready", false)
 			self:SetNWFloat("cloaktime", math.Round(CurTime(), 1))
 			self.oldColor = self:GetColor()
 			self.oldMat = self:GetMaterial()
@@ -36,7 +38,7 @@ if SERVER then
 
 			LANG.Msg(self, "item_cloaking_hud_msg_enabled", nil, MSG_MSTACK_ROLE)
 		else
-			LANG.Msg(self, "item_cloaking_hud_msg_enabled", nil, MSG_MSTACK_WARN)
+			LANG.Msg(self, "item_cloaking_hud_msg_error", nil, MSG_MSTACK_WARN)
 		end
 	end
 
@@ -48,15 +50,15 @@ if SERVER then
 
 		self:SetColor(self.oldColor)
 		self:SetMaterial(self.oldMat)
-		self:DrawWorldModel( true )
-		self:DrawViewModel( true )
+		self:DrawWorldModel(true)
+		self:DrawViewModel(true)
 		self:EmitSound("AlyxEMP.Discharge")
 
 		LANG.Msg(self, "item_cloaking_hud_msg_disabled", nil, MSG_MSTACK_ROLE)
 	end
 
 	-- resets the Cloaking Device (called in preparing phase and on player death)
-	function plymeta:ResetToggleCloakingDevice()
+	function plymeta:ResetCloakingDevice()
 		if self.oldColor ~= nil then
 			self:SetColor(self.oldColor)
 		else
@@ -69,16 +71,16 @@ if SERVER then
 			self:SetMaterial("models/glass")
 		end
 
-		self:DrawViewModel( true )
-		self:DrawWorldModel( true )
+		self:DrawViewModel(true)
+		self:DrawWorldModel(true)
 
 		self.cloaked = false
-		self:SetNWBool("ToggleCloakingDeviceready", true)
+		self:SetNWBool("cloakingdeviceready", true)
 		self:SetNWFloat("cloaktime", 0)
 		self:SetNWFloat("uncloaktime", 0)
 	end
 
-	hook.Add("Think", "ToggleCloakingDevice_Think", function()
+	hook.Add("Think", "cloakingdevice_think", function()
 		local plys = player.GetAll()
 
 		for i = 1, #plys do
@@ -97,25 +99,25 @@ if SERVER then
 				ply:UnCloak()
 			elseif ply:GetNWFloat("uncloaktime", 0) ~= 0 and math.Round(CurTime(), 1) == ply:GetNWFloat("uncloaktime", nil) + cvCooldown:GetInt() then
 				ply:SetNWFloat("uncloaktime", 0)
-				ply:SetNWBool("ToggleCloakingDeviceready", true)
+				ply:SetNWBool("cloakingdeviceready", true)
 
 				LANG.Msg(ply, "item_cloaking_hud_msg_ready", nil, MSG_MSTACK_PLAIN)
 			end
 		end
 	end)
 
-	hook.Add("TTTPrepareRound", "ToggleCloakingDevice_ResetAll", function()
+	hook.Add("TTTPrepareRound", "cloakingdevice_resetAll", function()
 		local plys = player.GetAll()
 
 		for i = 1, #plys do
 			local ply = plys[i]
 
-			ply:ResetToggleCloakingDevice()
+			ply:ResetCloakingDevice()
 		end
 	end)
 
-	hook.Add("PlayerDeath", "ToggleCloakingDevice_Reset", function(ply)
-		ply:ResetToggleCloakingDevice()
+	hook.Add("PlayerDeath", "cloakingdevice_reset", function(ply)
+		ply:ResetCloakingDevice()
 	end)
 
 	hook.Add("PlayerSwitchWeapon", "ToggleCloakingDevice_sw", function(ply)
@@ -127,7 +129,9 @@ if SERVER then
 		end)
 	end)
 
-	net.Receive("ToggleCloakingDevice_toggle", function(len, ply)
+	net.Receive("cloakingdevice_toggle", function(len, ply)
+		print("toggling cloaking device")
+
 		ply:ToggleCloakingDevice()
 	end)
 end
