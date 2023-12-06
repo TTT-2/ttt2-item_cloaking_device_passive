@@ -3,6 +3,7 @@
 if SERVER then
 	resource.AddFile("materials/vgui/ttt/icon_cloakingdevicepassive.vmt")
 	resource.AddFile("materials/vgui/ttt/perks/hub_cloakingdevicepassive_ttt2.png")
+	resource.AddFile("materials/vgui/ttt/hudhelp/icon_cloakingdevicepassive.vmt")
 
 	AddCSLuaFile()
 end
@@ -33,6 +34,8 @@ function ITEM:DrawInfo()
 end
 
 if CLIENT then
+	local materialKeyBind = Material("vgui/ttt/hudhelp/icon_cloakingdevicepassive")
+
 	function ITEM:AddToSettingsMenu(parent)
 		local form = vgui.CreateTTT2Form(parent, "header_equipment_additional")
 
@@ -58,12 +61,20 @@ if CLIENT then
 		})
 	end
 
-	bind.Register("cloakingdevice", function()
-		net.Start("cloakingdevice_toggle")
-		net.SendToServer()
-	end, function() end, "header_bindings_other", "item_cloaking_bindings_name")
+	hook.Add("TTT2FinishedLoading", "TTTItemCloakingdevicePassiveInitStatus", function()
+		bind.Register("cloakingdevice", function()
+			net.Start("cloakingdevice_toggle")
+			net.SendToServer()
+		end, function() end, "header_bindings_other", "item_cloaking_bindings_name", KEY_N)
 
-	timer.Simple(0, function()
-		AddTTT2AddonDev("76561198329270449")
+		timer.Simple(0, function()
+			AddTTT2AddonDev("76561198329270449")
+		end)
+
+		keyhelp.RegisterKeyHelper("cloakingdevice", materialKeyBind, KEYHELP_EQUIPMENT, "label_keyhelper_cloakingdevicepassive", function(client)
+			if client:IsSpec() or not client:HasEquipmentItem("item_ttt_cloakingdevicepassive") then return end
+
+			return true
+		end)
 	end)
 end

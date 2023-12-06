@@ -12,8 +12,6 @@ if SERVER then
 	function plymeta:ToggleCloakingDevice()
 		if not self:HasEquipmentItem("item_ttt_cloakingdevicepassive") then return end
 
-		print("has item")
-
 		if self.cloaked then
 			self:UnCloak()
 		else
@@ -130,8 +128,6 @@ if SERVER then
 	end)
 
 	net.Receive("cloakingdevice_toggle", function(len, ply)
-		print("toggling cloaking device")
-
 		ply:ToggleCloakingDevice()
 	end)
 end
