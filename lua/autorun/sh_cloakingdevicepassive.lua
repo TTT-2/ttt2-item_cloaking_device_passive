@@ -1,6 +1,6 @@
+if TTT2 then return end -- only for normal TTT
+
 if SERVER then
-	resource.AddWorkshop( "1802717950" )
-	
 	util.AddNetworkString("cloakingdevice_acivate")
 	util.AddNetworkString("cloakingdevice_message")
 	util.AddNetworkString("cloakingdevice_acivate")

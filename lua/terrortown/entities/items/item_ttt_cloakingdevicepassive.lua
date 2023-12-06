@@ -37,7 +37,7 @@ end
 if CLIENT then
 	bind.Register("cloakingdevice", function()
 		LocalPlayer():ConCommand("cloakingdevice")
-	end, function() end, "Other Bindings", "Cloaking Device")
+	end, function() end, "header_bindings_other", "Cloaking Device")
 
 	timer.Simple( 0, function()
 		AddTTT2AddonDev("76561198329270449")
