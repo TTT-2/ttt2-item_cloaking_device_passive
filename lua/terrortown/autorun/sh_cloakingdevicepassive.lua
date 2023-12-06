@@ -1,41 +1,16 @@
 if SERVER then
-	util.AddNetworkString("cloakingdevice_acivate")
-	util.AddNetworkString("cloakingdevice_message")
-	util.AddNetworkString("cloakingdevice_acivate")
+	util.AddNetworkString("ToggleCloakingDevice_toggle")
 end
 
-local cvDuration = CreateConVar("ttt_cloakingdevice_duration", 20, {FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_NOTIFY}, "How long should you be invisible?")
-local cvCooldown = CreateConVar("ttt_cloakingdevice_cooldown", 30, {FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_NOTIFY}, "How long should you be the cooldown?")
-local cvAllowShoot = CreateConVar("ttt_cloakingdevice_allowShoot", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_NOTIFY}, "Should the player be allowed to shoot when cloaked?")
-
-if CLIENT then
-	local preventmultiplemsg
-
-	net.Receive("cloakingdevice_message", function()
-		if preventmultiplemsg then return end
-
-		preventmultiplemsg = true
-
-		local msg = net.ReadString()
-
-		timer.Simple(0.2, function()
-			chat.AddText("Cloaking Device: ", Color(255, 255, 255), msg)
-			chat.PlaySound()
-			preventmultiplemsg = false
-		end)
-	end)
-
-	concommand.Add("cloakingdevice", function( ply )
-		net.Start("cloakingdevice_acivate")
-		net.SendToServer()
-	end)
-end
+local cvDuration = CreateConVar("ttt_ToggleCloakingDevice_duration", 20, {FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_NOTIFY}, "How long should you be invisible?")
+local cvCooldown = CreateConVar("ttt_ToggleCloakingDevice_cooldown", 30, {FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_NOTIFY}, "How long should you be the cooldown?")
+local cvAllowShoot = CreateConVar("ttt_ToggleCloakingDevice_allowShoot", 0, {FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_NOTIFY}, "Should the player be allowed to shoot when cloaked?")
 
 if SERVER then
 	local plymeta = FindMetaTable("Player")
 
-	function plymeta:CloakingDevice()
-		if not self:HasEquipmentItem("item_ttt_cloakingdevicepassive") then return end
+	function plymeta:ToggleCloakingDevice()
+		if not self:HasEquipmentItem("item_ttt_ToggleCloakingDevicepassive") then return end
 
 		if self.cloaked then
 			self:UnCloak()
@@ -46,26 +21,22 @@ if SERVER then
 
 	-- makes the player invisible if the Cloaking Device is ready
 	function plymeta:Cloak()
-		if self:GetNWBool("cloakingdeviceready", false) then
+		if self:GetNWBool("ToggleCloakingDeviceready", false) then
 			self.cloaked = true
-			self:SetNWBool("cloakingdeviceready", false)
+			self:SetNWBool("ToggleCloakingDeviceready", false)
 			self:SetNWFloat("cloaktime", math.Round(CurTime(), 1))
 			self.oldColor = self:GetColor()
 			self.oldMat = self:GetMaterial()
 
 			self:SetColor(Color(255, 255, 255, 3))
 			self:SetMaterial("sprites/heatwave")
-			self:DrawViewModel( false )
-			self:DrawWorldModel( false )
+			self:DrawViewModel(false)
+			self:DrawWorldModel(false)
 			self:EmitSound("AlyxEMP.Charge")
 
-			net.Start("cloakingdevice_message")
-			net.WriteString("You are now invisible!")
-			net.Send(self)
+			LANG.Msg(self, "item_cloaking_hud_msg_enabled", nil, MSG_MSTACK_ROLE)
 		else
-			net.Start("cloakingdevice_message")
-			net.WriteString("Your Cloaking Device isn't ready yet!")
-			net.Send(self)
+			LANG.Msg(self, "item_cloaking_hud_msg_enabled", nil, MSG_MSTACK_WARN)
 		end
 	end
 
@@ -81,13 +52,11 @@ if SERVER then
 		self:DrawViewModel( true )
 		self:EmitSound("AlyxEMP.Discharge")
 
-		net.Start("cloakingdevice_message")
-		net.WriteString("You are visible again!")
-		net.Send(self)
+		LANG.Msg(self, "item_cloaking_hud_msg_disabled", nil, MSG_MSTACK_ROLE)
 	end
 
 	-- resets the Cloaking Device (called in preparing phase and on player death)
-	function plymeta:ResetCloakingdevice()
+	function plymeta:ResetToggleCloakingDevice()
 		if self.oldColor ~= nil then
 			self:SetColor(self.oldColor)
 		else
@@ -104,12 +73,12 @@ if SERVER then
 		self:DrawWorldModel( true )
 
 		self.cloaked = false
-		self:SetNWBool("cloakingdeviceready", true)
+		self:SetNWBool("ToggleCloakingDeviceready", true)
 		self:SetNWFloat("cloaktime", 0)
 		self:SetNWFloat("uncloaktime", 0)
 	end
 
-	hook.Add("Think", "cloakingdevice_Think", function()
+	hook.Add("Think", "ToggleCloakingDevice_Think", function()
 		local plys = player.GetAll()
 
 		for i = 1, #plys do
@@ -128,30 +97,28 @@ if SERVER then
 				ply:UnCloak()
 			elseif ply:GetNWFloat("uncloaktime", 0) ~= 0 and math.Round(CurTime(), 1) == ply:GetNWFloat("uncloaktime", nil) + cvCooldown:GetInt() then
 				ply:SetNWFloat("uncloaktime", 0)
-				ply:SetNWBool("cloakingdeviceready", true)
+				ply:SetNWBool("ToggleCloakingDeviceready", true)
 
-				net.Start("cloakingdevice_message")
-				net.WriteString("Your Cloaking Device is ready again!")
-				net.Send(ply)
+				LANG.Msg(ply, "item_cloaking_hud_msg_ready", nil, MSG_MSTACK_PLAIN)
 			end
 		end
 	end)
 
-	hook.Add("TTTPrepareRound", "cloakingdevice_ResetAll", function()
+	hook.Add("TTTPrepareRound", "ToggleCloakingDevice_ResetAll", function()
 		local plys = player.GetAll()
 
 		for i = 1, #plys do
 			local ply = plys[i]
 
-			ply:ResetCloakingdevice()
+			ply:ResetToggleCloakingDevice()
 		end
 	end)
 
-	hook.Add("PlayerDeath", "cloakingdevice_Reset", function(ply)
-		ply:ResetCloakingdevice()
+	hook.Add("PlayerDeath", "ToggleCloakingDevice_Reset", function(ply)
+		ply:ResetToggleCloakingDevice()
 	end)
 
-	hook.Add("PlayerSwitchWeapon", "cloakingdevice_sw", function(ply)
+	hook.Add("PlayerSwitchWeapon", "ToggleCloakingDevice_sw", function(ply)
 		timer.Simple(0, function()
 			if not ply.cloaked then return end
 
@@ -160,7 +127,7 @@ if SERVER then
 		end)
 	end)
 
-	net.Receive("cloakingdevice_acivate", function(len, ply)
-		ply:CloakingDevice()
+	net.Receive("ToggleCloakingDevice_toggle", function(len, ply)
+		ply:ToggleCloakingDevice()
 	end)
 end
